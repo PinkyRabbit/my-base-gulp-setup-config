@@ -12,10 +12,8 @@ const pngquant     = require('imagemin-pngquant'); // pngquant imagemin plugin
 const sass         = require('gulp-sass'); // compiling SASS files
 const autoprefixer = require('gulp-autoprefixer'); // Prefix CSS
 const cleanCSS     = require('gulp-clean-css'); // Minify CSS
-// const sourcemaps = require('gulp-sourcemaps'); // Use it!
+const sourcemaps   = require('gulp-sourcemaps'); // sourcemaps generator
 const cachebust    = require('gulp-cache-bust'); // cachebust plugin for gulp
-const hasher       = require('gulp-hasher'); // Gulp plugin that builds a cache of assets and their md5 digests
-const buster       = require('gulp-cache-buster'); // Gulp plugin that searches for asset references (URLs) and replaces them with a cache busted representation.
 
 const rename       = require('gulp-rename'); // rename files
 const clean        = require('gulp-clean'); // clean directory
@@ -106,10 +104,10 @@ gulp.task('sass', ['images'], () => {
         browsers: ['last 10 versions'],
         cascade: false
     }))
-    .pipe(cleanCSS())
-    // .pipe(sourcemaps.init())
     // .pipe(cleanCSS())
-    // .pipe(sourcemaps.write())
+    .pipe(sourcemaps.init())
+    .pipe(cleanCSS())
+    .pipe(sourcemaps.write())
     .pipe(gulp.dest('dist/css/'));
 });
 
