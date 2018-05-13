@@ -1,5 +1,6 @@
 # Gulp templating
 > My setup to developing with `gulp`.
+
 You can move from here but I strongly recommended you install all from CLI to get last versions of all packages.
 ```
 npm install --save-dev browser-sync gulp gulp-autoprefixer gulp-cache-bust gulp-clean gulp-clean-css gulp-concat gulp-imagemin gulp-jshint gulp-notify gulp-plumber gulp-rename gulp-sass gulp-uglify imagemin-pngquant jshint jshint-stylish run-sequence
