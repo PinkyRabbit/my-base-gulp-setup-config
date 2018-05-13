@@ -18,7 +18,7 @@ index.html
 /sass           // folder for sass
 ```
 In `index.html`:
-* styles saving as `styles.min.css`
-* scripts saving as `scripts.min.js`
+* styles save as `styles.min.css`
+* scripts save as `scripts.min.js`
  
 Easy as cake. Happy coding!
