@@ -94,6 +94,7 @@ gulp.task('images', () => {
 gulp.task('sass', ['images'], () => {
   return gulp
     .src('src/sass/*.scss')
+    .pipe(sourcemaps.init())
     .pipe(plumber({ errorHandler: onError }))
     .pipe(sass({
       // options: https://github.com/sass/node-sass#options
@@ -104,10 +105,9 @@ gulp.task('sass', ['images'], () => {
         browsers: ['last 10 versions'],
         cascade: false
     }))
-    // .pipe(cleanCSS())
-    .pipe(sourcemaps.init())
     .pipe(cleanCSS())
-    .pipe(sourcemaps.write())
+    .pipe(rename('styles.min.css'))
+    .pipe(sourcemaps.write('./'))
     .pipe(gulp.dest('dist/css/'));
 });
 

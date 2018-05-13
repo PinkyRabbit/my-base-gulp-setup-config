@@ -17,4 +17,8 @@ index.html
 /js/lib         // any javascript libs (only will copied)
 /sass           // folder for sass
 ```
+In `index.html`:
+* styles saving as `styles.min.css`
+* scripts saving as `scripts.min.js`
+ 
 Easy as cake. Happy coding!
