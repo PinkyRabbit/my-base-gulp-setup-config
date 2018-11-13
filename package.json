@@ -1,23 +1,42 @@
 {
   "name": "gulp-base-setup",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "My basic gulp setup",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+  "homepage": "https://github.com/PinkyRabbit/my-base-gulp-setup-config",
+  "author": {
+    "name": "Mikita Melnikau <usesa@yandex.com>",
+    "url": "https://github.com/PinkyRabbit"
   },
-  "keywords": [],
-  "author": "Mikita Melnikau",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/PinkyRabbit/my-base-gulp-setup-config.git"
+  },
+  "bugs": {
+    "url": "https://github.com/PinkyRabbit/my-base-gulp-setup-config/issues"
+  },
+  "main": "readme.js",
+  "scripts": {
+    "start": "node readme.js"
+  },
+  "keywords": [
+    "gulp",
+    "templating",
+    "front-end"
+  ],
   "license": "ISC",
   "devDependencies": {
+    "@babel/core": "^7.1.5",
+    "@babel/preset-env": "^7.1.5",
     "browser-sync": "^2.24.4",
+    "graceful-fs": "^4.1.15",
     "gulp": "^3.9.1",
     "gulp-autoprefixer": "^5.0.0",
+    "gulp-babel": "^8.0.0",
     "gulp-cache-bust": "^1.3.0",
     "gulp-clean": "^0.4.0",
     "gulp-clean-css": "^3.9.4",
     "gulp-concat": "^2.6.1",
-    "gulp-imagemin": "^4.1.0",
+    "gulp-imagemin": "^5.0.3",
     "gulp-jshint": "^2.1.0",
     "gulp-notify": "^3.2.0",
     "gulp-plumber": "^1.2.0",
@@ -28,6 +47,5 @@
     "jshint": "^2.9.5",
     "jshint-stylish": "^2.2.1",
     "run-sequence": "^2.2.1"
-  },
-  "dependencies": {}
+  }
 }

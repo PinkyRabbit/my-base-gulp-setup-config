@@ -3,6 +3,7 @@ const runSequence  = require('run-sequence'); // Run a series of dependent gulp 
 const path         = require('path'); // NodeJS
 const plumber      = require('gulp-plumber'); // Prevent pipe breaking caused by errors from gulp plugins
 const notify       = require('gulp-notify'); // notification plugin for gulp
+const babel        = require('gulp-babel'); // use last version of javascript
 const minifyJS     = require('gulp-uglify'); // Minify javascript
 const concatJS     = require('gulp-concat'); // concat all javascripts in one file
 const jshint       = require('gulp-jshint'); // JShint for gulp
@@ -33,7 +34,7 @@ gulp.task('server', () => {
 
   // Watch for file changes.
   gulp.watch('src/*.html', ['watch-html']);
-  gulp.watch('src/sass/**/*.scss', ['watch-sass']);
+  gulp.watch('src/sass/**/*.{sass,scss}', ['watch-sass']);
   gulp.watch('src/js/**/*.js', ['watch-js']);
   gulp.watch(['src/images/**/*.{png,jpg,gif,svg}', '!src/images/sprites/**'], ['watch-img']);
   // gulp.watch('src/images/sprites/**', ['sprites']);
@@ -49,28 +50,38 @@ gulp.task('html', () => {
     .pipe(gulp.dest('dist'));
 });
 
-// copy JS libs
-gulp.task('copy-libs', () => {
+// copy libs
+gulp.task('copy-js', () => {
   return gulp
-    .src('src/js/lib/*.js')
+    .src('src/libs/*.{js,js.map}')
     .pipe(gulp.dest('dist/js'));
+});
+gulp.task('copy-css', () => {
+  return gulp
+    .src('src/libs/*.{css,css.map}')
+    .pipe(gulp.dest('dist/css'));
 });
 
 // Minify JS
 gulp.task('javascript', ['lint-js'], () => {
   return gulp
     .src('src/js/*.js')
+    .pipe(sourcemaps.init())
+		.pipe(babel({
+			presets: ['@babel/env']
+		}))
+		.pipe(concatJS('scripts.min.js'))
     .pipe(minifyJS({
       // options: https://github.com/mishoo/UglifyJS2#minify-options
     }))
-    .pipe(rename('scripts.min.js'))
+		.pipe(sourcemaps.write('.'))
     .pipe(gulp.dest('dist/js'));
 });
 
 // Check JS for errors
 gulp.task('lint-js', () => {
   return gulp
-    .src(['src/js/**/*.js', '!src/js/lib/**'])
+    .src(['src/js/**/*.js', '!src/js/libs/**'])
     .pipe(plumber({ errorHandler: onError }))
     .pipe(jshint())
     .pipe(jshint.reporter(stylish))
@@ -107,7 +118,7 @@ gulp.task('sass', ['images'], () => {
     }))
     .pipe(cleanCSS())
     .pipe(rename('styles.min.css'))
-    .pipe(sourcemaps.write('./'))
+    .pipe(sourcemaps.write('.'))
     .pipe(gulp.dest('dist/css/'));
 });
 
@@ -171,7 +182,8 @@ gulp.task('default', (cb) => {
   runSequence(
     'reset',
     'html',
-    'copy-libs',
+    'copy-js',
+    'copy-css',
     // 'sprites',
     [
       'sass',
