@@ -16,6 +16,8 @@ index.html
 /fonts          // folder with fonts
 /libs           // all libs here please (jquery and so on you place here)
 ```
+> application works on http://localhost:3210/
+
 In `index.html`:
 * styles save as `styles.min.css`
 * scripts save as `scripts.min.js`
