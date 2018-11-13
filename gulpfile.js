@@ -61,6 +61,11 @@ gulp.task('copy-css', () => {
     .src('src/libs/*.{css,css.map}')
     .pipe(gulp.dest('dist/css'));
 });
+gulp.task('copy-fonts', () => {
+  return gulp
+    .src('src/fonts/**.*')
+    .pipe(gulp.dest('dist/fonts'));
+});
 
 // Minify JS
 gulp.task('javascript', ['lint-js'], () => {
@@ -184,6 +189,7 @@ gulp.task('default', (cb) => {
     'html',
     'copy-js',
     'copy-css',
+    'copy-fonts',
     // 'sprites',
     [
       'sass',
