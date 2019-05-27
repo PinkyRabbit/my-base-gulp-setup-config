@@ -71,7 +71,9 @@ gulp.task('copy-fonts', () => {
     .pipe(gulp.dest('dist/fonts'));
 });
 
-// Check JS for errors
+/*
+  Javascript
+ */
 gulp.task('lint-js', () => {
   return gulp
     .src(['src/js/**/*.js', '!src/js/libs/**'])
@@ -80,8 +82,6 @@ gulp.task('lint-js', () => {
     .pipe(jshint.reporter(stylish))
     .pipe(jshint.reporter('fail'));
 });
-
-// Minify JS
 gulp.task('javascript', gulp.series('lint-js', () => {
   return gulp
     .src('src/js/*.js')
@@ -97,7 +97,10 @@ gulp.task('javascript', gulp.series('lint-js', () => {
     .pipe(gulp.dest('dist/js'));
 }));
 
-// Optimize images
+
+/*
+  Images
+ */
 gulp.task('images', () => {
   return gulp
     .src(['src/images/**/*.{png,jpg,gif,svg}', '!src/images/sprites/**'])

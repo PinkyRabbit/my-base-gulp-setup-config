@@ -2,11 +2,13 @@
 <html>
     <head>
         <meta charset="utf-8">
-        <title><%= title %></title>
-        <!-- css libs -->
+        <meta name="description" content="<%= seo.description %>">
+        <meta name="keywords" content="<%= seo.keywords %>">
+        <title>My site ➜ <%= seo.title %></title>
+        <!-- css -->
+        <link rel="stylesheet" href="/css/normalize.css">
         <link rel="stylesheet" href="/css/toastr.min.css">
         <link rel="stylesheet" href="/css/font-awesome.min.css">
-        <!-- our css bundle -->
         <link rel="stylesheet" href="/css/styles.min.css">
     </head>
     <body>
