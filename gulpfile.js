@@ -1,6 +1,7 @@
 const gulp         = require('gulp');
+const fs           = require("graceful-fs");
+const del          = require('del');
 const runSequence  = require('run-sequence'); // Run a series of dependent gulp tasks in order
-const path         = require('path'); // NodeJS
 const plumber      = require('gulp-plumber'); // Prevent pipe breaking caused by errors from gulp plugins
 const notify       = require('gulp-notify'); // notification plugin for gulp
 const babel        = require('gulp-babel'); // use last version of javascript
@@ -67,22 +68,6 @@ gulp.task('copy-fonts', () => {
     .pipe(gulp.dest('dist/fonts'));
 });
 
-// Minify JS
-gulp.task('javascript', ['lint-js'], () => {
-  return gulp
-    .src('src/js/*.js')
-    .pipe(sourcemaps.init())
-		.pipe(babel({
-			presets: ['@babel/env']
-		}))
-		.pipe(concatJS('scripts.min.js'))
-    .pipe(minifyJS({
-      // options: https://github.com/mishoo/UglifyJS2#minify-options
-    }))
-		.pipe(sourcemaps.write('.'))
-    .pipe(gulp.dest('dist/js'));
-});
-
 // Check JS for errors
 gulp.task('lint-js', () => {
   return gulp
@@ -92,6 +77,24 @@ gulp.task('lint-js', () => {
     .pipe(jshint.reporter(stylish))
     .pipe(jshint.reporter('fail'));
 });
+
+// Minify JS
+gulp.task('javascript', gulp.series('lint-js', () => {
+  return gulp
+    .src('src/js/*.js')
+    .pipe(sourcemaps.init())
+    .pipe(babel({
+      presets: ['@babel/env']
+    }))
+    .pipe(concatJS('scripts.min.js'))
+    .pipe(minifyJS({
+      // options: https://github.com/mishoo/UglifyJS2#minify-options
+    }))
+    .pipe(sourcemaps.write('.'))
+    .pipe(gulp.dest('dist/js'));
+}));
+
+
 
 // Optimize images
 gulp.task('images', () => {
@@ -107,7 +110,7 @@ gulp.task('images', () => {
 });
 
 // compile SASS
-gulp.task('sass', ['images'], () => {
+gulp.task('sass', gulp.series('images', () => {
   return gulp
     .src('src/sass/*.scss')
     .pipe(sourcemaps.init())
@@ -125,7 +128,7 @@ gulp.task('sass', ['images'], () => {
     .pipe(rename('styles.min.css'))
     .pipe(sourcemaps.write('.'))
     .pipe(gulp.dest('dist/css/'));
-});
+}));
 
 // cachebust
 gulp.task('cachebust', () => {
@@ -135,12 +138,34 @@ gulp.task('cachebust', () => {
     .pipe(gulp.dest('./dist'));
 });
 
-// clear all in dist folder
-gulp.task('reset', () => {
-  return gulp
-      .src('dist')
-      .pipe(clean());
+const delInPormise = (path) => new Promise((resolve, reject) => {
+  del(path, (err) => {
+    if (err) return reject(err);
+    return resolve();
+  });
 });
+
+const mkdirInPromise = (path, options) => new Promise((resolve, reject) => {
+  fs.mkdir(path, options, err => {
+    if (err) return reject(err);
+    return resolve();
+  });
+});
+
+gulp.task('directories', function () {
+  return gulp.src('*.*', {read: false})
+    .pipe(gulp.dest('./css'))
+    .pipe(gulp.dest('./js'))
+    .pipe(gulp.dest('./img/content'))
+    .pipe(gulp.dest('./img/icons'))
+    .pipe(gulp.dest('./fonts'));
+});
+
+// clear all in dist folder
+gulp.task('reset', gulp.series(
+  del([ 'dist/*' ]),
+  directories,
+));
 
 // Creates sprites from SVG files.
 // gulp.task('sprites', () => {
@@ -161,43 +186,70 @@ gulp.task('reset', () => {
 
 // --------------------------
 // >>> task + reload
-gulp.task('watch-html', ['html'], (done) => {
-  browser.reload();
-  done();
-});
+gulp.task('watch-html', gulp.series(
+  'html',
+  (done) => {
+    browser.reload();
+    done();
+  },
+));
 
-gulp.task('watch-sass', ['sass', 'cachebust'], (done) => {
-  browser.reload();
-  done();
-});
+gulp.task('watch-sass', gulp.series(
+  'sass',
+  'cachebust',
+  (done) => {
+    browser.reload();
+    done();
+  },
+));
 
-gulp.task('watch-img', ['images'], (done) => {
-  browser.reload();
-  done();
-});
+gulp.task('watch-img', gulp.series(
+  'images',
+  (done) => {
+    browser.reload();
+    done();
+  },
+));
 
-gulp.task('watch-js', ['javascript'], (done) => {
-  browser.reload();
-  done();
-});
+gulp.task('watch-js', gulp.series(
+  'javascript',
+  (done) => {
+    browser.reload();
+    done();
+  },
+));
 
 // --------------------------
 // >>> DEFAULT
-gulp.task('default', (cb) => {
-  runSequence(
-    'reset',
-    'html',
-    'copy-js',
-    'copy-css',
-    'copy-fonts',
-    // 'sprites',
-    [
-      'sass',
-      'javascript'
-    ],
-    'server',
-    cb);
-});
+const defaultTasks = gulp.series(
+  'reset',
+  'html',
+  'copy-js',
+  'copy-css',
+  'copy-fonts',
+  // 'sprites',
+  gulp.parallel(
+    'sass',
+    'javascript'
+  ),
+  'server',
+);
+gulp.task('default', defaultTasks());
+// gulp.task('default', (cb) => {
+//   runSequence(
+//     'reset',
+//     'html',
+//     'copy-js',
+//     'copy-css',
+//     'copy-fonts',
+//     // 'sprites',
+//     [
+//       'sass',
+//       'javascript'
+//     ],
+//     'server',
+//     cb);
+// });
 
 // --------------------------
 // >>> Error handler
