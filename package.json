@@ -1,6 +1,6 @@
 {
   "name": "gulp-base-setup",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "My basic gulp setup",
   "homepage": "https://github.com/PinkyRabbit/my-base-gulp-setup-config",
   "author": {
@@ -16,7 +16,9 @@
   },
   "main": "readme.js",
   "scripts": {
-    "start": "node readme.js"
+    "start": "node readme.js",
+    "dev": "gulp",
+    "build": "NODE_ENV=production gulp"
   },
   "keywords": [
     "gulp",
@@ -33,7 +35,6 @@
     "gulp-autoprefixer": "^6.1.0",
     "gulp-babel": "^8.0.0",
     "gulp-cache-bust": "^1.4.0",
-    "gulp-clean": "^0.4.0",
     "gulp-clean-css": "^4.2.0",
     "gulp-concat": "^2.6.1",
     "gulp-imagemin": "^5.0.3",
@@ -46,7 +47,6 @@
     "gulp-uglify": "^3.0.2",
     "imagemin-pngquant": "^7.0.0",
     "jshint": "^2.10.2",
-    "jshint-stylish": "^2.2.1",
-    "run-sequence": "^2.2.1"
+    "jshint-stylish": "^2.2.1"
   }
 }

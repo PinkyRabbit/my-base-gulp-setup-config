@@ -1,6 +1,8 @@
 # Gulp templating
 > My setup to developing with `gulp`.
 
+## Updated to Gulp v4
+
 This is my base gulp setup for website templating. I added [Bulma](https://bulma.io/) for the example of SASS usage (cuz it's mostly used by me css framework) and [toastr](https://github.com/CodeSeven/toastr) for the example of the external library that doesn't need to be minifed (I use it in most of my projects) and [JQuery](https://jquery.com/) for it. Also there is a `cachebust` and [Font Awesome](https://fontawesome.com/) icons. Njoy!
 
 Main pros of usage: `Javascript` last version with `babel`, `sass` syntax accepted, _minification_ and _mapping_ of `css` and `js`, image _minification_, `js` _validation_. Just clone and make `npm install`

@@ -1,7 +1,5 @@
 const gulp         = require('gulp');
-const fs           = require("graceful-fs");
-const del          = require('del');
-const runSequence  = require('run-sequence'); // Run a series of dependent gulp tasks in order
+const del          = require('del'); // to remove old files
 const plumber      = require('gulp-plumber'); // Prevent pipe breaking caused by errors from gulp plugins
 const notify       = require('gulp-notify'); // notification plugin for gulp
 const babel        = require('gulp-babel'); // use last version of javascript
@@ -16,9 +14,9 @@ const autoprefixer = require('gulp-autoprefixer'); // Prefix CSS
 const cleanCSS     = require('gulp-clean-css'); // Minify CSS
 const sourcemaps   = require('gulp-sourcemaps'); // sourcemaps generator
 const cachebust    = require('gulp-cache-bust'); // cachebust plugin for gulp
-
 const rename       = require('gulp-rename'); // rename files
-const clean        = require('gulp-clean'); // clean directory
+
+const IS_PRODUCTION_VERSION = process.env.NODE_ENV === 'production';
 
 // --------------------------
 // >>> SERVER
@@ -34,11 +32,11 @@ gulp.task('server', () => {
   });
 
   // Watch for file changes.
-  gulp.watch('src/*.html', ['watch-html']);
-  gulp.watch('src/sass/**/*.{sass,scss}', ['watch-sass']);
-  gulp.watch('src/js/**/*.js', ['watch-js']);
-  gulp.watch(['src/images/**/*.{png,jpg,gif,svg}', '!src/images/sprites/**'], ['watch-img']);
-  // gulp.watch('src/images/sprites/**', ['sprites']);
+  gulp.watch('src/*.html', gulp.series('watch-html'));
+  gulp.watch('src/sass/**/*.{sass,scss}', gulp.series('watch-sass'));
+  gulp.watch('src/js/**/*.js', gulp.series('watch-js'));
+  gulp.watch(['src/images/**/*.{png,jpg,gif,svg}', '!src/images/sprites/**'], gulp.series('watch-img'));
+  // gulp.watch('src/images/sprites/**', gulp.series('sprites'));
 });
 
 // --------------------------
@@ -94,8 +92,6 @@ gulp.task('javascript', gulp.series('lint-js', () => {
     .pipe(gulp.dest('dist/js'));
 }));
 
-
-
 // Optimize images
 gulp.task('images', () => {
   return gulp
@@ -110,6 +106,9 @@ gulp.task('images', () => {
 });
 
 // compile SASS
+const cleanOps = IS_PRODUCTION_VERSION
+  ? { level: 2 }
+  : { format: 'beautify' }
 gulp.task('sass', gulp.series('images', () => {
   return gulp
     .src('src/sass/*.scss')
@@ -124,7 +123,7 @@ gulp.task('sass', gulp.series('images', () => {
         browsers: ['last 10 versions'],
         cascade: false
     }))
-    .pipe(cleanCSS())
+    .pipe(cleanCSS(cleanOps))
     .pipe(rename('styles.min.css'))
     .pipe(sourcemaps.write('.'))
     .pipe(gulp.dest('dist/css/'));
@@ -138,33 +137,21 @@ gulp.task('cachebust', () => {
     .pipe(gulp.dest('./dist'));
 });
 
-const delInPormise = (path) => new Promise((resolve, reject) => {
-  del(path, (err) => {
-    if (err) return reject(err);
-    return resolve();
-  });
-});
-
-const mkdirInPromise = (path, options) => new Promise((resolve, reject) => {
-  fs.mkdir(path, options, err => {
-    if (err) return reject(err);
-    return resolve();
-  });
-});
-
-gulp.task('directories', function () {
-  return gulp.src('*.*', {read: false})
-    .pipe(gulp.dest('./css'))
-    .pipe(gulp.dest('./js'))
-    .pipe(gulp.dest('./img/content'))
-    .pipe(gulp.dest('./img/icons'))
-    .pipe(gulp.dest('./fonts'));
-});
 
 // clear all in dist folder
+gulp.task('deleteAll', () => del([ 'dist' ]));
+gulp.task('createFolders', function () {
+  return gulp.src('*.*', {read: false})
+    .pipe(gulp.dest('./dist'))
+    .pipe(gulp.dest('./dist/css'))
+    .pipe(gulp.dest('./dist/js'))
+    .pipe(gulp.dest('./dist/images/content'))
+    .pipe(gulp.dest('./dist/images/icons'))
+    .pipe(gulp.dest('./dist/fonts'));
+});
 gulp.task('reset', gulp.series(
-  del([ 'dist/*' ]),
-  directories,
+  'deleteAll',
+  'createFolders',
 ));
 
 // Creates sprites from SVG files.
@@ -185,38 +172,39 @@ gulp.task('reset', gulp.series(
 // });
 
 // --------------------------
+const reload = (done) => {
+  browser.reload();
+  done();
+};
+
 // >>> task + reload
 gulp.task('watch-html', gulp.series(
   'html',
-  (done) => {
-    browser.reload();
-    done();
-  },
+  reload,
 ));
 
-gulp.task('watch-sass', gulp.series(
+const devSass = gulp.series(
   'sass',
   'cachebust',
-  (done) => {
-    browser.reload();
-    done();
-  },
-));
+  reload,
+);
+
+const prodSass = gulp.series(
+  'sass',
+  'cachebust',
+  reload,
+);
+
+gulp.task('watch-sass', IS_PRODUCTION_VERSION ? prodSass : devSass);
 
 gulp.task('watch-img', gulp.series(
   'images',
-  (done) => {
-    browser.reload();
-    done();
-  },
+  reload,
 ));
 
 gulp.task('watch-js', gulp.series(
   'javascript',
-  (done) => {
-    browser.reload();
-    done();
-  },
+  reload,
 ));
 
 // --------------------------
@@ -234,22 +222,7 @@ const defaultTasks = gulp.series(
   ),
   'server',
 );
-gulp.task('default', defaultTasks());
-// gulp.task('default', (cb) => {
-//   runSequence(
-//     'reset',
-//     'html',
-//     'copy-js',
-//     'copy-css',
-//     'copy-fonts',
-//     // 'sprites',
-//     [
-//       'sass',
-//       'javascript'
-//     ],
-//     'server',
-//     cb);
-// });
+gulp.task('default', defaultTasks);
 
 // --------------------------
 // >>> Error handler
@@ -259,4 +232,4 @@ function onError(error) {
     message: '<%= error.message %>'
   })(error);
   this.emit('end');
-};
+}
