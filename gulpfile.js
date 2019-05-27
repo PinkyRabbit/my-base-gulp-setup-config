@@ -15,6 +15,8 @@ const cleanCSS     = require('gulp-clean-css'); // Minify CSS
 const sourcemaps   = require('gulp-sourcemaps'); // sourcemaps generator
 const cachebust    = require('gulp-cache-bust'); // cachebust plugin for gulp
 const rename       = require('gulp-rename'); // rename files
+const template     = require('gulp-template'); // ejs syntax added
+const ejsMocks     = require('./mocks'); // ejs syntax added
 
 const IS_PRODUCTION_VERSION = process.env.NODE_ENV === 'production';
 
@@ -42,11 +44,14 @@ gulp.task('server', () => {
 // --------------------------
 // >>> TASKS
 
-// copy html
+// html
+console.log(ejsMocks)
 gulp.task('html', () => {
   return gulp
-    .src('src/*.html')
-    .pipe(gulp.dest('dist'));
+    .src('src/*.ejs')
+      .pipe(template(ejsMocks))
+      .pipe(rename(path => path.extname = '.html'))
+      .pipe(gulp.dest('dist'));
 });
 
 // copy libs
