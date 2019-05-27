@@ -34,7 +34,7 @@ gulp.task('server', () => {
   });
 
   // Watch for file changes.
-  gulp.watch('src/*.html', gulp.series('watch-html'));
+  gulp.watch('src/*.ejs', gulp.series('watch-html'));
   gulp.watch('src/sass/**/*.{sass,scss}', gulp.series('watch-sass'));
   gulp.watch('src/js/**/*.js', gulp.series('watch-js'));
   gulp.watch(['src/images/**/*.{png,jpg,gif,svg}', '!src/images/sprites/**'], gulp.series('watch-img'));
